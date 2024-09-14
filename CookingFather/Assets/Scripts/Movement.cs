@@ -1,99 +1,74 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
+    public Rigidbody rb;
+    private float _walkspeed = 7f;
+    
+    private Vector3 _inputs;
+    
+    private List<Vector3> Inputs;
     
     
-    
-    private Rigidbody rb;
-    
-    private float speed = 10f; 
-    private float stopfactor = 0.99f;
-    private float increasefactor = 1f;
-    private bool isGrounded;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        Inputs = new List<Vector3>();
+
     }
 
-    // Update is called once per frame
+    void Update()
+    {
+        Inputs.Add(_inputs);
+        
+    }
+    
     void FixedUpdate()
     {
-        
-        walk();
-        run();
-        jump();
-        crouch();
-        
-    }
-    
-    private void crouch()
-    {
-        
+        listinnit();
+        Walk();
     }
 
-    private void jump()
+    private void listinnit()
     {
+        float xraw = Input.GetAxisRaw("Horizontal");
+        float zraw = Input.GetAxisRaw("Vertical");
         
-    }
-
-    private void run()
-    {
-        //change look speed depending on running
-        
-    }
-    
-    private void walk()
-    {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        float rawhorizontal = Input.GetAxisRaw("Horizontal");
-        float rawvertical = Input.GetAxisRaw("Vertical");
-        
-        Vector3 horizontalMovement = transform.right * horizontal;
-        Vector3 verticalMovement = transform.forward * vertical;
-        Vector3 movement = horizontalMovement + verticalMovement;
-        Vector3 _velocity = (horizontalMovement + verticalMovement).normalized * (speed * increasefactor);
-        Vector3 _stop = new Vector3(rb.velocity.x * stopfactor, rb.velocity.y, rb.velocity.z * stopfactor);
-
-        if (movement != Vector3.zero)
+        _inputs = new Vector3(xraw, 0, zraw);
+        if(Inputs.Count == 10)
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movement), 0.15F);
-        }
-
-        //Acceleration
-        increasefactor = Mathf.SmoothDamp(5,1,ref increasefactor,0.1f);
-        rb.velocity += _velocity * Time.fixedDeltaTime;
-        
-        //checks if player stopped moving
-        if(rawvertical == 0 && rawhorizontal == 0)
-        {
-            if (isGrounded == true)
+            Vector3 first = Inputs[Inputs.Count];
+            Vector3 last = Inputs[Inputs.Count - 1];
+            if (first == -last)
             {
-                rb.velocity = _stop * Time.fixedDeltaTime;
+                //turned 180
+                print("turned 180");
+            }
+            if(last == Vector3.zero && first != Vector3.zero)
+            {
+               //moved
+               print("moved");
             }
         }
         
-        
-        //speed cap
-        if (rb.velocity.magnitude > speed)
+        // Remove the first element in the list
+        if (Inputs.Count > 10)
         {
-            rb.velocity = rb.velocity.normalized * .99f;
+            Inputs.RemoveAt(0);
         }
         
     }
 
-    private void OnCollisionExit(Collision other)
+    private void Walk()
     {
-        isGrounded = false;
-    }
-
-    private void OnCollisionEnter(Collision other)
-    {
-        isGrounded = true;
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+        
+        Vector3 move = (transform.right * x + transform.forward * z) * _walkspeed;
+        move *= Time.fixedDeltaTime;
+        rb.MovePosition(transform.position + move);
     }
 }
