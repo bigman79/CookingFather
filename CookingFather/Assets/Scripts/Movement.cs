@@ -10,9 +10,6 @@ public class Movement : MonoBehaviour
     public Rigidbody rb;
     private float _walkspeed = 7f;
     
-    private List<Vector3> Inputs;
-
-
     private List<Vector3> _inlist;
 
     
@@ -32,7 +29,7 @@ public class Movement : MonoBehaviour
     {
 
         rb = GetComponent<Rigidbody>();
-        Inputs = new List<Vector3>();
+        _inlist = new List<Vector3>();
     }
 
     void Update()
