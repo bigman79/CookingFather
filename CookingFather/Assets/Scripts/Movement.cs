@@ -6,8 +6,7 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-
-    public Rigidbody rb;
+    
     private float _walkspeed = 7f;
     
     private List<Vector3> _inlist;
@@ -28,7 +27,7 @@ public class Movement : MonoBehaviour
     void Start()
     {
 
-        rb = GetComponent<Rigidbody>();
+        _rb = GetComponent<Rigidbody>();
         _inlist = new List<Vector3>();
     }
 
@@ -82,9 +81,10 @@ public class Movement : MonoBehaviour
         Vector3 rmove = transform.forward * Runspeed(x);
         rmove *= Time.fixedDeltaTime;
         _rb.MovePosition(transform.position + rmove);
+        
+        
         Quaternion rotation = Quaternion.LookRotation(input.normalized);
         transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.fixedDeltaTime * 10);
-        
     }
 
     private void Walk(float x, float z)
